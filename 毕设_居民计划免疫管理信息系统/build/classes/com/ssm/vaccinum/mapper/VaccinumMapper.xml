@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssm.vaccinum.mapper.VaccinumMapper">
+	<insert id="insertVaccinum" parameterType="t_vaccination">
+		<selectKey keyProperty="vaccination_id" order="AFTER"
+			resultType="java.lang.Integer">
+			SELECT
+			LAST_INSERT_ID()
+		</selectKey>
+		insert into t_vaccination (resident_id,vaccination_date,va_id,vaccination_charge,vaccination_result,vaccination_place,vaccination_remarks) value
+		(#{resident_id},#{vaccination_date},#{va_id},#{vaccination_charge},#{vaccination_result},#{vaccination_place},#{vaccination_remarks});
+	</insert>
+
+	<delete id="deleteVaccinum" parameterType="java.lang.Integer">
+		delete from
+		t_vaccination where vaccination_id=#{value};
+	</delete>
+
+	<update id="updateVaccinum" parameterType="t_vaccination">
+		UPDATE t_vaccination
+		SET resident_id = #{resident_id},
+		vaccination_date = #{vaccination_date},
+		va_id = #{va_id},
+		vaccination_charge = #{vaccination_charge},
+		vaccination_result = #{vaccination_result},
+		vaccination_place = #{vaccination_place},
+		vaccination_remarks = #{vaccination_remarks}
+		WHERE vaccination_id=#{vaccination_id}
+	</update>
+	
+	<resultMap type="t_vaccination" id="vaccinumResultMap">
+		<id column="vaccination_id" property="vaccination_id" />
+		<result column="resident_id" property="resident_id" />
+		<result column="vaccination_date" property="vaccination_date" />
+		<result column="va_id" property="va_id" />
+		<result column="vaccination_charge" property="vaccination_charge" />
+		<result column="vaccination_result" property="vaccination_result" />
+		<result column="vaccination_place" property="vaccination_place" />
+		<result column="vaccination_remarks" property="vaccination_remarks" />
+		<association property="resident" javaType="t_resident"><!-- property和pojo类中的属性是一致的 -->
+			<id column="resident_id" property="resident_id" />
+			<result column="login_name" property="login_name" />
+		</association>
+	</resultMap>
+	
+	<select id="selectVaccination" resultMap="vaccinumResultMap">
+		SELECT * FROM t_vaccination a,t_resident b
+		where a.resident_id=b.resident_id
+		limit #{startrow},#{length}
+	</select>
+	
+	<select id="getVaccinationCount" resultType="double">  
+  		SELECT COUNT(*) FROM t_vaccination
+	</select>
+	
+	
+	<select id="getCount" parameterType="java.lang.String" resultType="double"> 
+  		SELECT COUNT(*) FROM t_vaccination a
+  		where a.resident_id=#{value}
+	</select>
+	
+	<select id="countNum" resultType="java.lang.Integer"> 
+  		SELECT COUNT(*) FROM t_vaccination a
+  		where a.va_id=#{value}
+	</select>
+
+	<select id="countVaccinumWithTimezone" resultType="java.lang.Integer"> 
+  		SELECT COUNT(*) FROM t_vaccination
+  		where va_id=#{va_id} and vaccination_date Between #{timeBegin} And #{timeEnd}
+	</select>
+	
+	<select id="selectSomeVaccination" resultMap="vaccinumResultMap">
+		SELECT * FROM t_vaccination a,t_resident b
+		where a.resident_id=b.resident_id 
+		and a.resident_id = #{resident_id} or b.login_name = #{resident_id}
+		limit #{startrow},#{length}
+	</select>
+	
+	<resultMap type="t_vaccination" id="vaccinumResultMapForUser">
+		<id column="vaccination_id" property="vaccination_id" />
+		<result column="resident_id" property="resident_id" />
+		<result column="vaccination_date" property="vaccination_date" />
+		<result column="va_id" property="va_id" />
+		<result column="vaccination_charge" property="vaccination_charge" />
+		<result column="vaccination_result" property="vaccination_result" />
+		<result column="vaccination_place" property="vaccination_place" />
+		<result column="vaccination_remarks" property="vaccination_remarks" />
+		<association property="resident" javaType="t_resident"><!-- property和pojo类中的属性是一致的 -->
+			<id column="resident_id" property="resident_id" />
+			<result column="login_name" property="login_name" />
+		</association>
+		<association property="vaccinum" javaType="t_vaccinum"><!-- property和pojo类中的属性是一致的 -->
+			<id column="va_id" property="va_id" />
+			<result column="va_name" property="va_name" />
+		</association>
+	</resultMap>
+	
+	<select id="selectSomeVaccinationForUser" resultMap="vaccinumResultMapForUser">
+		SELECT * FROM t_vaccination a,t_resident b,t_vaccinum c
+		where a.resident_id=b.resident_id 
+		and a.resident_id = #{resident_id} and a.va_id = c.va_id
+		limit #{startrow},#{length}
+	</select>
+	
+	<update id="updateRemarks">
+		UPDATE t_vaccination
+		SET vaccination_remarks = #{vaccination_remarks}
+		WHERE vaccination_id = #{vaccination_id}
+	</update>
+</mapper>

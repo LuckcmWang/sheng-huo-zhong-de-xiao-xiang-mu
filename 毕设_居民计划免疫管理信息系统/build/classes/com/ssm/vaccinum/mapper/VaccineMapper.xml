@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssm.vaccinum.mapper.VaccineMapper">
+	<insert id="insertVaccine" parameterType="t_vaccinum">
+		<selectKey keyProperty="va_id" order="AFTER"
+			resultType="java.lang.Integer">
+			SELECT
+			LAST_INSERT_ID()
+		</selectKey>
+		insert into t_vaccinum (va_name,va_indication,va_reaction,va_usage) values
+		(#{va_name},#{va_indication},#{va_reaction},#{va_usage});
+	</insert>
+
+	<update id="updateVaccine" parameterType="t_vaccinum">
+		UPDATE t_vaccinum
+		SET va_name = #{va_name},
+		va_indication = #{va_indication},
+		va_reaction = #{va_reaction},
+		va_usage = #{va_usage}
+		WHERE va_id=#{va_id}
+	</update>
+	
+	<select id="count" resultType="double">  
+  		SELECT COUNT(*) FROM t_vaccinum
+	</select>
+	
+	<select id="selectAll" resultType="t_vaccinum">
+		SELECT * FROM t_vaccinum
+		limit #{startrow},#{length}
+	</select>
+	
+	<select id="selectAllVaccine" resultType="t_vaccinum">
+		SELECT * FROM t_vaccinum
+	</select>
+	
+	<select id="selectById" resultType="t_vaccinum">
+		SELECT * FROM t_vaccinum
+		WHERE t_vaccinum.va_id = #{value}
+	</select>
+</mapper>

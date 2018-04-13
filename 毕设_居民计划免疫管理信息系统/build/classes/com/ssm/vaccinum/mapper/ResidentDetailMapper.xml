@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssm.vaccinum.mapper.ResidentDetailMapper">
+	<insert id="insertDetail" parameterType="T_Resident_Detail">
+		<selectKey keyProperty="detail_id" order="AFTER"
+			resultType="java.lang.Integer">
+			SELECT
+			LAST_INSERT_ID()
+		</selectKey>
+		insert into
+		t_resident_detail
+		(resident_id,resident_name,resident_sex,birth_date,resident_homeplace,resident_nationality,
+		resident_nation,resident_education,resident_address,resident_job,resident_marriage,resident_household)
+		values
+		(#{resident_id},#{resident_name},#{resident_sex},#{birth_date},#{resident_homeplace},#{resident_nationality},
+		#{resident_nation},#{resident_education},#{resident_address},#{resident_job},#{resident_marriage},#{resident_household});
+	</insert>
+
+	<delete id="deleteDetail" parameterType="java.lang.Integer">
+		delete from
+		t_resident_detail where resident_id=#{value};
+	</delete>
+
+	<update id="updateDetail" parameterType="T_Resident_Detail">
+		update t_resident_detail
+		set resident_name = #{resident_name},
+		resident_sex = #{resident_sex},
+		resident_homeplace = #{resident_homeplace},
+		birth_date = #{birth_date},
+		resident_address = #{resident_address},
+		resident_household = #{resident_household}
+		where resident_id=#{resident_id}
+	</update>
+	
+	<select id="select" parameterType="java.lang.Integer" resultType="int">
+		select COUNT(*) from
+		t_resident_detail where t_resident_detail.resident_id=#{value};
+	</select>
+</mapper>

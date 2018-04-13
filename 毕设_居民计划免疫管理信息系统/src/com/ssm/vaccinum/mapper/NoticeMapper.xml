@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssm.vaccinum.mapper.NoticeMapper">
+
+<select id="getNotice" resultType="t_va_planning">
+		select *
+		from t_va_planning a
+		limit #{startrow},#{length}
+	</select>
+
+<select id="count" resultType="double">
+  		SELECT COUNT(*) FROM t_va_planning
+	</select>
+
+<select id="countNum" resultType="java.lang.Integer">
+  		SELECT COUNT(*) FROM t_va_planning
+  		WHERE va_id = #{value};
+	</select>
+	
+<select id="countNonNum" resultType="java.lang.Integer"> 
+  		SELECT COUNT(*) FROM t_va_planning
+  		WHERE va_id = #{va_id} AND va_date Between #{begin} And #{end};
+	</select>
+	
+<delete id="deletePlanning" parameterType="java.lang.Integer">
+		delete from t_va_planning
+		where resident_id=#{resident_id} and va_id=#{va_id};
+	</delete>
+	
+<select id="select" resultType="t_va_planning">
+		select *
+		from t_va_planning
+		where resident_id=#{resident_id} and va_id=#{va_id};
+	</select>
+	
+<insert id="insert" parameterType="t_va_planning">
+		insert into t_va_planning (resident_id,va_id,va_date,va_address) value
+		(#{resident_id},#{va_id},#{va_date},#{va_address});
+	</insert>
+</mapper>

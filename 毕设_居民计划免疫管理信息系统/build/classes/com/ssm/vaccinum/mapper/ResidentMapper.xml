@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace命名空间，作用就是对sql进行分类化管理； 注意：使用mapper代理方法开发时，namespace指向同名的mapper接口类 -->
+<mapper namespace="com.ssm.vaccinum.mapper.ResidentMapper">
+
+	<resultMap type="T_Resident" id="residentResultMap">
+		<id column="resident_id" property="resident_id" />
+		<result column="login_name" property="login_name" />
+		<result column="login_password" property="login_password" />
+		<result column="resident_telephone" property="resident_telephone" />
+		<result column="resident_email" property="resident_email" />
+		<result column="resident_idnumber" property="resident_idnumber" />
+		<association property="t_resident_detail" javaType="T_Resident_Detail">
+			<id column="detail_id" property="detail_id" />
+			<result column="resident_name" property="resident_name" />
+			<result column="resident_sex" property="resident_sex" /><!-- property是pojo类中对应的属性名 -->
+			<result column="birth_date" property="birth_date" /><!-- column是数据库中的字段名 -->
+			<result column="resident_homeplace" property="resident_homeplace" />
+			<result column="resident_nationality" property="resident_nationality" />
+			<result column="resident_nation" property="resident_nation" />
+			<result column="resident_education" property="resident_education" />
+			<result column="resident_address" property="resident_address" />
+			<result column="resident_job" property="resident_job" />
+			<result column="resident_marriage" property="resident_marriage" />
+			<result column="resident_household" property="resident_household" />
+		</association>
+	</resultMap>
+	
+	
+	<sql id="where1">
+		<where>
+			a.resident_id = b.resident_id
+			<if test="resident.resident_id!=null and resident.resident_id!=''">and a.resident_id = #{resident.resident_id}</if>
+			<if test="resident.login_name!=null and resident.login_name!=''">and a.login_name = #{resident.login_name}</if>
+			<if test="resident.resident_detail!=null">
+				<if test="resident.resident_detail.resident_name!=null and resident.resident_detail.resident_name!=''">and b.resident_name like '%${resident.resident_detail.resident_name}%'</if>
+				<if test="resident.resident_detail.resident_sex!=null and resident.resident_detail.resident_sex!=''">and b.resident_sex = #{resident.resident_detail.resident_sex}</if>
+				<if test="resident.resident_detail.resident_address!=null and resident.resident_detail.resident_address!=''">and b.resident_address like '%${resident.resident_detail.resident_address}</if>
+				<if test="resident.resident_detail.birth_date!=null">and b.birth_date = #{resident.resident_detail.birth_date}</if>
+			</if>
+		</where>
+	</sql>
+
+	<!-- 根据id查询用户 -->
+	<select id="findResidentById" parameterType="int" resultMap="residentResultMap">
+		select *
+		from t_resident a,t_resident_detail b WHERE a.resident_id =
+		b.resident_id and a.resident_id=#{value}
+	</select>
+	
+	<!-- 根据帐号和密码查询用户 -->
+	<select id="findResidentAndDetailByLogin" resultMap="residentResultMap" parameterType="string">
+		select *
+		from t_resident a,t_resident_detail b WHERE a.resident_id = b.resident_id
+		and a.login_name = #{login_name}
+		and a.login_password = #{login_password}
+	</select>
+	
+	<!-- 查看所有用户 -->
+	<select id="selectResident" resultMap="residentResultMap">
+		select *
+		from t_resident a,t_resident_detail b WHERE a.resident_id = b.resident_id
+		limit #{startrow},#{length}
+	</select>
+	
+	<!-- 查看特定用户 -->
+	<select id="selectSomeResident" resultMap="residentResultMap">
+		select *
+		from t_resident a,t_resident_detail b WHERE a.resident_id = b.resident_id and a.resident_id = #{resident_id}
+		limit #{startrow},#{length}
+	</select>
+	
+	<!-- 计算用户数 -->
+	<select id="selectNum" resultType="double">
+		SELECT COUNT(*) FROM t_resident
+	</select>
+	
+	<!-- 计算用户数 -->
+	<select id="selectSomeNum" resultType="double">
+		SELECT COUNT(*) FROM t_resident WHERE t_resident.resident_id = #{resident_id}
+	</select>
+	
+	<!-- 根据帐号和密码查询用户,不包括详细信息 -->
+	<select id="findResidentByLogin" resultType="t_resident" parameterType="string">
+		select *
+		from t_resident a WHERE a.login_name = #{login_name}
+		and a.login_password = #{login_password}
+	</select>
+	
+	<!-- 根据用户名查询用户 -->
+	<select id="findResidentByLoginName" resultType="t_resident" parameterType="string">
+		select *
+		from t_resident a WHERE a.login_name = #{login_name} 
+	</select>
+
+	<!-- 根据输入条件查询用户 -->
+	<select id="queryResident" resultMap="residentResultMap">
+		select * from t_resident a,t_resident_detail b
+		<include refid="where1" />
+		order by a.resident_id asc limit #{startrow},#{length}
+	</select>
+
+	<!-- 根据输入条件查询用户总数 -->
+	<select id="queryResidentCount" resultType="int">
+		select count(*) from t_resident a,t_resident_detail b
+		<include refid="where1" />
+	</select>
+
+	<!-- 增加用户（注册） -->
+	<insert id="insertResident" parameterType="t_resident">
+		<selectKey keyProperty="resident_id" order="AFTER"
+			resultType="java.lang.Integer">
+			SELECT
+			LAST_INSERT_ID()
+		</selectKey>
+		insert into t_resident (login_name,login_password,resident_telephone,resident_email,resident_idnumber) value
+		(#{login_name},#{login_password},#{resident_telephone},#{resident_email},#{resident_idnumber});
+	</insert>
+
+	<!-- 删除用户 -->
+	<delete id="deleteResident" parameterType="java.lang.Integer">
+		delete from t_resident
+		where
+		resident_id=#{value};
+	</delete>
+
+	<!-- 修改用户信息 -->
+	<update id="updateResident" parameterType="t_resident">
+		update t_resident
+		set resident_telephone = #{resident_telephone},
+		resident_email = #{resident_email},
+		resident_idnumber = #{resident_idnumber}
+		where resident_id=#{resident_id}
+	</update>
+</mapper>
